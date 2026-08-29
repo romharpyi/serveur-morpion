@@ -14,16 +14,20 @@ wss.on('connection', (ws) => {
     }
 
     ws.on('message', (message) => {
+        // Conversion en buffer/string selon la version du package ws
+        const payload = message.toString();
+
+        // Relaie le coup à TOUS les clients connectés (y compris l'expéditeur)
         clients.forEach((client) => {
-            if (client !== ws && client.readyState === WebSocket.OPEN) {
-                client.send(message);
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(payload);
             }
         });
     });
 
     ws.on('close', () => {
         clients = clients.filter((c) => c !== ws);
-        console.log('Joueur déconnecté');
+        console.log(`Joueur déconnecté. Restants: ${clients.length}`);
     });
 });
 
